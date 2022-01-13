@@ -62,9 +62,9 @@ class Ui_MainWindow(object):
             # Initialize crypto object if it wasn't
             self.EPS = Crypto(tickerName="ellipsis", database="Coingecko", tickerBase="usd")
             # Download thumbnail image to img folder
-            self.EPS.DownloadThumbNail(fileName = "ellipsis.png")
+            self.EPS.downloadThumbNail(fileName = "ellipsis.png")
 
-        self.EPS.GetData()
+        self.EPS.getData()
         self.label.setText("<b>%s :</b> %s <br><b>Price :</b> %.3f<br><b>Volume :</b> %d<br><b>Market Cap :</b> %d " % (self.EPS.tickerName.upper(),self.EPS.time,self.EPS.price,self.EPS.volume,self.EPS.marketCap))
         self.pushCrypto.setStyleSheet("QPushButton{ image: url(../img/ellipsis.png); }")
         self.pushCrypto.setText("")

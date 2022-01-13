@@ -29,7 +29,7 @@ class Crypto():
         self.tickerName = tickerName #Default ticker is bitcoin
         self.tickerBase = tickerBase  # Default ticker base is USD
 
-    def SetData(self,varDict):
+    def setData(self,varDict):
         """
         @fn GetData
         @brief This function to set the attribute of crypto object
@@ -39,7 +39,7 @@ class Crypto():
         for varName, varValue in varDict.items():
             setattr(self, varName, varValue)
 
-    def GetData(self):
+    def getData(self):
         """
         @fn GetData
         @brief This function to retrieve crypto data from database
@@ -48,7 +48,7 @@ class Crypto():
         """
         status = False
         if self.database == "Coingecko":
-            res = self.GetCoinGeckoData(self.tickerName, self.tickerBase)
+            res = self.getCoinGeckoData(self.tickerName, self.tickerBase)
             if res is not None:
                 self.price = res[0]["current_price"]
                 self.time = res[0]["last_updated"]
@@ -57,12 +57,12 @@ class Crypto():
                 status = True
         return status
 
-    def DisplayData(self, updateData = False):
+    def displayData(self, updateData = False):
         if updateData:
-            self.GetData()
+            self.getData()
         print("%s : %s - Price = %.3f Volume = %d Market Cap = %d " % (self.tickerName,self.time,self.price,self.volume,self.marketCap))
 
-    def DownloadThumbNail(self,fileName = "ellipsis.png"):
+    def downloadThumbNail(self,fileName = "ellipsis.png"):
         urlImg = "https://assets.coingecko.com/coins/images/14498/large/ellipsis.png"
         imgFileDest = os.path.dirname(os.path.abspath(__file__)).replace("lib", "img")
         imgFileDest = imgFileDest + "\\" + fileName
@@ -71,7 +71,7 @@ class Crypto():
             with open(imgFileDest, 'wb') as outfile:
                 outfile.write(r.content)
 
-    def GetCoinGeckoData(self, tickerName = "bitcoin", tickerBase = "usd"):
+    def getCoinGeckoData(self, tickerName = "bitcoin", tickerBase = "usd"):
         """
         @fn GetData
         @brief This function to retrieve crypto data from coingecko database
