@@ -28,6 +28,7 @@ class Crypto():
         self.marketCap = None
         self.tickerName = tickerName #Default ticker is bitcoin
         self.tickerBase = tickerBase  # Default ticker base is USD
+        self.coinAllData = self.getCoinAllData(tickerName)
 
     def setData(self,varDict):
         """
@@ -57,13 +58,34 @@ class Crypto():
                 status = True
         return status
 
+    def getCoinList(self):
+        res = None
+        url = 'https://api.coingecko.com/api/v3/coins/list'
+        data    = urllib.request.urlopen(url).read()
+        try:
+            res     = json.loads(data)
+        except:
+            pass
+        return res
+
+    def getCoinAllData(self, tickerName = "bitcoin"):
+        res = None
+        url = "https://api.coingecko.com/api/v3/coins/%s" % tickerName
+        data    = urllib.request.urlopen(url).read()
+        try:
+            res     = json.loads(data)
+        except:
+            pass
+        return res
+
+
     def displayData(self, updateData = False):
         if updateData:
             self.getData()
         print("%s : %s - Price = %.3f Volume = %d Market Cap = %d " % (self.tickerName,self.time,self.price,self.volume,self.marketCap))
 
     def downloadThumbNail(self,fileName = "ellipsis.png"):
-        urlImg = "https://assets.coingecko.com/coins/images/14498/large/ellipsis.png"
+        urlImg = self.coinAllData["image"]["large"]
         imgFileDest = os.path.dirname(os.path.abspath(__file__)).replace("lib", "img")
         imgFileDest = imgFileDest + "\\" + fileName
         if not os.path.exists(imgFileDest):
