@@ -10,6 +10,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from Crypto import Crypto
+import os
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -58,9 +59,15 @@ class Ui_MainWindow(object):
 
     def clickedPushCrypto(self):
         if self.EPS is None:
+            # Initialize crypto object if it wasn't
             self.EPS = Crypto(tickerName="ellipsis", database="Coingecko", tickerBase="usd")
+            # Download thumbnail image to img folder
+            self.EPS.DownloadThumbNail(fileName = "ellipsis.png")
+
         self.EPS.GetData()
-        self.label.setText("%s : %s - Price = %.3f Volume = %d Market Cap = %d " % (self.EPS.tickerName,self.EPS.time,self.EPS.price,self.EPS.volume,self.EPS.marketCap))
+        self.label.setText("<b>%s :</b> %s <br><b>Price :</b> %.3f<br><b>Volume :</b> %d<br><b>Market Cap :</b> %d " % (self.EPS.tickerName.upper(),self.EPS.time,self.EPS.price,self.EPS.volume,self.EPS.marketCap))
+        self.pushCrypto.setStyleSheet("QPushButton{ image: url(../img/ellipsis.png); }")
+        self.pushCrypto.setText("")
 
         self.updateGui()
 

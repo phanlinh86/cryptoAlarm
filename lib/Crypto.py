@@ -1,6 +1,8 @@
 import urllib.request
 import json
 import time
+import os
+import requests
 
 # Constants
 COINGECKO_URL_API = "https://api.coingecko.com/api/v3"
@@ -59,6 +61,15 @@ class Crypto():
         if updateData:
             self.GetData()
         print("%s : %s - Price = %.3f Volume = %d Market Cap = %d " % (self.tickerName,self.time,self.price,self.volume,self.marketCap))
+
+    def DownloadThumbNail(self,fileName = "ellipsis.png"):
+        urlImg = "https://assets.coingecko.com/coins/images/14498/large/ellipsis.png"
+        imgFileDest = os.path.dirname(os.path.abspath(__file__)).replace("lib", "img")
+        imgFileDest = imgFileDest + "\\" + fileName
+        if not os.path.exists(imgFileDest):
+            r = requests.get(urlImg)
+            with open(imgFileDest, 'wb') as outfile:
+                outfile.write(r.content)
 
     def GetCoinGeckoData(self, tickerName = "bitcoin", tickerBase = "usd"):
         """
