@@ -10,9 +10,9 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from Crypto import Crypto
-import os
 
 class Ui_MainWindow(object):
+    # UI front end code generated from QtDesigner BEGIN *******************************
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(471, 257)
@@ -52,6 +52,35 @@ class Ui_MainWindow(object):
         self.menuEdit.addAction(self.actionAdd)
         self.menuEdit.addAction(self.actionRemove)
         self.menubar.addAction(self.menuEdit.menuAction())
+        self.textGreater = QtWidgets.QTextEdit(self.centralwidget)
+        self.textGreater.setGeometry(QtCore.QRect(370, 90, 61, 31))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.textGreater.setFont(font)
+        self.textGreater.setObjectName("textGreater")
+        self.textLesser = QtWidgets.QTextEdit(self.centralwidget)
+        self.textLesser.setGeometry(QtCore.QRect(370, 120, 61, 31))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.textLesser.setFont(font)
+        self.textLesser.setObjectName("textLesser")
+        self.label_2 = QtWidgets.QLabel(self.centralwidget)
+        self.label_2.setGeometry(QtCore.QRect(340, 90, 21, 31))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.label_2.setFont(font)
+        self.label_2.setObjectName("label_2")
+        self.label_3 = QtWidgets.QLabel(self.centralwidget)
+        self.label_3.setGeometry(QtCore.QRect(340, 120, 21, 31))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.label_3.setFont(font)
+        self.label_3.setObjectName("label_3")
+        self.labelStatus = QtWidgets.QLabel(self.centralwidget)
+        self.labelStatus.setGeometry(QtCore.QRect(140, 160, 191, 31))
+        self.labelStatus.setText("")
+        self.labelStatus.setObjectName("labelStatus")
+
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -63,10 +92,13 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.pushCrypto.setText(_translate("MainWindow", "PushButton"))
-        self.label.setText(_translate("MainWindow", "TextLabel"))
+        self.label.setText(_translate("MainWindow", ""))
         self.menuEdit.setTitle(_translate("MainWindow", "Edit"))
         self.actionAdd.setText(_translate("MainWindow", "Add"))
         self.actionRemove.setText(_translate("MainWindow", "Remove"))
+        self.label_2.setText(_translate("MainWindow", ">="))
+        self.label_3.setText(_translate("MainWindow", "<="))
+    # UI front end code generated from QtDesigner END *******************************
 
     def clickedPushCrypto(self):
         doCryptoInit = False
