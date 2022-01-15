@@ -136,7 +136,7 @@ class cryptoAlarm(QtWidgets.QMainWindow):
 
     def eventFilter(self, source, event):
         if event.type() == QtCore.QEvent.KeyPress and source is self.textCrypto:
-            if event.key() == QtCore.Qt.Key_Return and self.textCrypto.hasFocus():
+            if event.key() in [QtCore.Qt.Key_Return,QtCore.Qt.Key_Enter] and self.textCrypto.hasFocus():
                 self.updateCryptoPrice()
                 return True
         return super(cryptoAlarm,self).eventFilter(source, event)
