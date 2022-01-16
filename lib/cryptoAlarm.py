@@ -175,7 +175,8 @@ class cryptoAlarm(QtWidgets.QMainWindow):
                 tempCrypto = Crypto(tickerName=tickerName, database="Coingecko", tickerBase="usd")
                 tempCrypto.getData()
                 self.cryptoDatabase['price'][tickerName] = tempCrypto.price
-                self.cryptoDatabase['alarm'][tickerName] = [0, 0]
+                self.cryptoDatabase['alarm'][tickerName] = [tempCrypto.price >= self.cryptoDatabase['threshold'][tickerName][0], #  trigger when price >= upper threshold
+                                                            tempCrypto.price <= self.cryptoDatabase['threshold'][tickerName][1]] #  trigger when price <= lower threshold
             except Exception as err:
                 self.writeStatus("Error %s" % err, messageType = "ERROR")
 
@@ -252,7 +253,7 @@ class cryptoAlarm(QtWidgets.QMainWindow):
         if self.isCryptoDataValid():
             self.cryptoDatabase['threshold'][self.cryptoObj.tickerName] = [self.upperThreshold, self.lowerThreshold]
             self.cryptoDatabase['price'][self.cryptoObj.tickerName] = self.cryptoObj.price
-            self.cryptoDatabase['alarm'][self.cryptoObj.tickerName] = [0,0]
+            self.cryptoDatabase['alarm'][self.cryptoObj.tickerName] = [False,False]
 
             if not self.cryptoObj.tickerName in self.cryptoDatabase['ticker']:
                 self.cryptoDatabase['ticker'].append(self.cryptoObj.tickerName)
