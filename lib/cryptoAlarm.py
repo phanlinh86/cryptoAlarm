@@ -120,8 +120,12 @@ class cryptoAlarm(QtWidgets.QMainWindow):
         self.cryptoObj = None
 
     def initializeDatabase(self):
-        self.cryptoList = []
         self.cryptoDatabase = {}
+        self.cryptoDatabase['ticker'] = []
+        self.cryptoDatabase['threshold'] = {}
+        self.cryptoDatabase['price'] = {}
+        self.cryptoDatabase['alarm'] = {}
+
 
     def updateGui(self):
         self.labelPrice.adjustSize()
@@ -165,6 +169,9 @@ class cryptoAlarm(QtWidgets.QMainWindow):
         timeDisplay = time.toString('yyyy-MM-dd hh:mm:ss dddd')
         self.labelTime.setText(timeDisplay)
 
+    def updatePrice(self):
+        pass
+
     # UI Event related functions ***************************************************************************************
     def eventFilter(self, source, event):
         if event.type() == QtCore.QEvent.KeyPress and source is self.textCrypto:
@@ -174,10 +181,18 @@ class cryptoAlarm(QtWidgets.QMainWindow):
         return super(cryptoAlarm,self).eventFilter(source, event)
 
     def textCryptoEditEvent(self):
-        self.updateCryptoPrice() # Update crypto price after user finished editing crypto ticker
+        self.updateCryptoPrice()    # Update crypto price after user finished editing crypto ticker
 
     def pushCryptoClickEvent(self):
-        self.updateDatabase()   # Update crypto price and database after user push the alarm button
+        self.updateCryptoPrice()    # Update crypto price label and also related variables
+        self.updateDatabase()       # UUpdate crypto database
+
+    def menuAddClickEvent(self):
+        self.updateCryptoPrice()    # Update crypto price label and also related variables
+        self.updateDatabase()       # Update crypto database
+
+    def menuRemoveClickEvent(self):
+        self.removeDatabase()       # Remove ticker data in the database
 
     # Crypto data related functions ***********************************************************************************
     def updateCryptoPrice(self):
@@ -222,24 +237,28 @@ class cryptoAlarm(QtWidgets.QMainWindow):
         return isValid
 
     def updateDatabase(self):
-        self.updateCryptoPrice() # Update price
         self.upperThreshold, self.lowerThreshold = self.getCryptoThreshold() # Get upper and lower threshold
         # If data is valid, update database
         if self.isCryptoDataValid():
-            self.cryptoDatabase[self.cryptoObj.tickerName] = [self.upperThreshold, self.lowerThreshold]
-            if not self.cryptoObj.tickerName in self.cryptoList:
-                self.cryptoList.append(self.cryptoObj.tickerName)
+            self.cryptoDatabase['threshold'][self.cryptoObj.tickerName] = [self.upperThreshold, self.lowerThreshold]
+            self.cryptoDatabase['price'][self.cryptoObj.tickerName] = self.cryptoObj.price
+            self.cryptoDatabase['alarm'][self.cryptoObj.tickerName] = [0,0]
 
-        print("Current crypto list: %s" % self.cryptoList)
+            if not self.cryptoObj.tickerName in self.cryptoDatabase['ticker']:
+                self.cryptoDatabase['ticker'].append(self.cryptoObj.tickerName)
+
+        print("Current crypto list: %s" % self.cryptoDatabase['ticker'])
         print("Current crypto dictionary: %s" % self.cryptoDatabase)
 
     def removeDatabase(self):
         tickerName = self.textCrypto.toPlainText().lower()
-        if tickerName in self.cryptoList:
-            self.cryptoList.remove(tickerName)
-            del(self.cryptoDatabase[tickerName])
+        if tickerName in self.cryptoDatabase['ticker']:
+            self.cryptoDatabase['ticker'].remove(tickerName)
+            del(self.cryptoDatabase['threshold'][tickerName])
+            del (self.cryptoDatabase['price'][tickerName])
+            del (self.cryptoDatabase['alarm'][tickerName])
 
-        print("Current crypto list: %s" % self.cryptoList)
+        print("Current crypto list: %s" % self.cryptoDatabase['ticker'])
         print("Current crypto dictionary: %s" % self.cryptoDatabase)
 
     def getCryptoThreshold(self):
