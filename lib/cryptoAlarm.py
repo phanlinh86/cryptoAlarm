@@ -161,7 +161,7 @@ class cryptoAlarm(QtWidgets.QMainWindow):
         self.timerCount = self.timerCount + 1
         # Update price every 1 min defined in PRICE_UPDATE_TIMEOUT
         if ( self.timerCount % PRICE_UPDATE_TIMEOUT == 0 ):
-            print("Price updated")
+            self.updateCryptoDataBase()
             pass
 
     def updateClockLabel(self):
@@ -169,7 +169,17 @@ class cryptoAlarm(QtWidgets.QMainWindow):
         timeDisplay = time.toString('yyyy-MM-dd hh:mm:ss dddd')
         self.labelTime.setText(timeDisplay)
 
-    def updatePrice(self):
+    def updateCryptoDataBase(self):
+        for tickerName in self.cryptoDatabase['ticker']:
+            try:
+                tempCrypto = Crypto(tickerName=tickerName, database="Coingecko", tickerBase="usd")
+                tempCrypto.getData()
+                self.cryptoDatabase['price'][tickerName] = tempCrypto.price
+                self.cryptoDatabase['alarm'][tickerName] = [0, 0]
+            except Exception as err:
+                self.writeStatus("Error %s" % err, messageType = "ERROR")
+
+        print("Price updated. %s" % self.cryptoDatabase)
         pass
 
     # UI Event related functions ***************************************************************************************
