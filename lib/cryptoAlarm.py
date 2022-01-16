@@ -2,6 +2,9 @@ from PyQt5 import QtCore,QtWidgets,QtGui
 from Crypto import Crypto
 import sys
 
+# CONSTANTS
+TIMER_TIMEOUT = 1000 # in miliseconds
+PRICE_UPDATE_TIMEOUT = 60 # in seconds
 
 class cryptoAlarm(QtWidgets.QMainWindow):
     def __init__(self):
@@ -12,7 +15,7 @@ class cryptoAlarm(QtWidgets.QMainWindow):
         self.initializeDatabase()
         self.setupTimer()
 
-    # FRONT END - Modified from QtDesigner *****************************************************************************
+    # UI related functions - Modified from QtDesigner ******************************************************************
     def setupUi(self):
         self.resize(471, 240)
         self.setUpCentralWidget()
@@ -106,9 +109,9 @@ class cryptoAlarm(QtWidgets.QMainWindow):
         self.labelStatus.setGeometry(QtCore.QRect(140, 160, 191, 31))
         self.labelStatus.setObjectName("labelStatus")
 
-    # BACKEND GUI functionality ***************************************************************************************
+    # UI general functions ********************************************************************************************
     def connectUi(self):
-        self.pushCrypto.clicked.connect(self.updateDatabase)
+        self.pushCrypto.clicked.connect(self.pushCryptoClickEvent)
         self.textCrypto.installEventFilter(self)  # Add listener for ticker texbox
         self.actionAdd.triggered.connect(self.updateDatabase)
         self.actionRemove.triggered.connect(self.removeDatabase)
@@ -123,32 +126,63 @@ class cryptoAlarm(QtWidgets.QMainWindow):
     def updateGui(self):
         self.labelPrice.adjustSize()
 
+    def writeStatus(self, message, messageType = "GENERAL"):
+        # 3 types of messages. General -> Black color. Warning -> Yellow. Error -> Red
+        self.labelStatus.setText(message)
+        if messageType.upper() == "GENERAL":
+            self.labelStatus.setStyleSheet("color : black")
+        elif messageType.upper() == "WARNING":
+            self.labelStatus.setStyleSheet("color : orange")
+        elif messageType.upper() == "ERROR":
+            self.labelStatus.setStyleSheet("color : red")
+
+    # Timer and background task related functions **********************************************************************
     def setupTimer(self):
-        # Set up timer, timeout = 1s
-        self.timer = QtCore.QTimer()
-        self.timer.start(1000)
-        self.timer.timeout.connect(self.showTime)
-        # Set up a label to display time every s
+        # Set up clock label to display time every s
         self.labelTime = QtWidgets.QLabel(self.centralwidget)
         self.labelTime.setGeometry(QtCore.QRect(220, 20, 211, 21))
         self.labelTime.setObjectName("labelTime")
         self.labelTime.setAlignment(QtCore.Qt.AlignRight)
+        # Set up timer, timeout = 1s, defined in TIMER_TIMEOUT
+        self.timer = QtCore.QTimer()
+        self.timer.start(TIMER_TIMEOUT)
+        self.timer.timeout.connect(self.doBackgroundTasks)
+        # Set up timer related variables
+        self.timerCount = 0
 
-    def showTime(self):
+
+    def doBackgroundTasks(self):
+        # Update the clock
+        self.updateClockLabel()
+        self.timerCount = self.timerCount + 1
+        # Update price every 1 min defined in PRICE_UPDATE_TIMEOUT
+        if ( self.timerCount % PRICE_UPDATE_TIMEOUT == 0 ):
+            print("Price updated")
+            pass
+
+    def updateClockLabel(self):
         time = QtCore.QDateTime.currentDateTime()
         timeDisplay = time.toString('yyyy-MM-dd hh:mm:ss dddd')
         self.labelTime.setText(timeDisplay)
 
+    # UI Event related functions ***************************************************************************************
     def eventFilter(self, source, event):
         if event.type() == QtCore.QEvent.KeyPress and source is self.textCrypto:
             if event.key() in [QtCore.Qt.Key_Return,QtCore.Qt.Key_Enter] and self.textCrypto.hasFocus():
-                self.updateCryptoPrice()
+                self.textCryptoEditEvent()
                 return True
         return super(cryptoAlarm,self).eventFilter(source, event)
 
+    def textCryptoEditEvent(self):
+        self.updateCryptoPrice() # Update crypto price after user finished editing crypto ticker
+
+    def pushCryptoClickEvent(self):
+        self.updateDatabase()   # Update crypto price and database after user push the alarm button
+
+    # Crypto data related functions ***********************************************************************************
     def updateCryptoPrice(self):
         doCryptoInit = False
-        self.labelStatus.setText("")
+        self.writeStatus("")
         try:
             # Get ticker name from the textbox
             tickerName = self.textCrypto.toPlainText().lower()
@@ -173,8 +207,7 @@ class cryptoAlarm(QtWidgets.QMainWindow):
             self.pushCrypto.setText("")
 
         except Exception as err:
-            self.labelStatus.setText("Error %s" % err)
-            self.labelStatus.setStyleSheet("color : red")
+            self.writeStatus("Error %s" % err, messageType = "ERROR")
             if self.cryptoObj is not None:
                 self.cryptoObj.validCrypto = False
             pass
@@ -220,6 +253,7 @@ class cryptoAlarm(QtWidgets.QMainWindow):
         return (upperThreshold,lowerThreshold)
 
     def doCrytoPriceCheck(self):
+        # This function will be run every 1min
         pass
 
 
