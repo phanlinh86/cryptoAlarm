@@ -1,3 +1,10 @@
+"""
+@package    Crypto
+@brief      This class allows user to retrieve various crypto data from coingecko such as price, volume, thumbnail,...
+@author     Nguyen Phan Linh
+@date       17-Jan-2022
+"""
+
 import urllib.request
 import json
 import time

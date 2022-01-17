@@ -1,13 +1,32 @@
+"""
+@package    cryptoAlarm
+@brief      This class is for cryptoAlarm application.
+            The application allows user to set alarm when crypto price of a specific tokens exceeds some limits
+@author     Nguyen Phan Linh
+@date       17-Jan-2022
+"""
+
+
 from PyQt5 import QtCore,QtWidgets,QtGui
 from Crypto import Crypto
 import sys
+import winsound
 
 # CONSTANTS
 TIMER_TIMEOUT = 1000 # in miliseconds
-PRICE_UPDATE_TIMEOUT = 60 # in seconds
+PRICE_UPDATE_TIMEOUT = 10 # in seconds
 
 class cryptoAlarm(QtWidgets.QMainWindow):
+    """
+    @class crypto
+    @brief This class hold all functions/attributes related to cryptoALarm application
+    """
     def __init__(self):
+        """
+        @fn __init__
+        @brief This constructor  to initialize attributes for class cryptoAlarm
+        @param None
+        """
         super(cryptoAlarm, self).__init__()
         self.setupUi()
         self.connectUi()
@@ -17,6 +36,12 @@ class cryptoAlarm(QtWidgets.QMainWindow):
 
     # UI related functions - Modified from QtDesigner ******************************************************************
     def setupUi(self):
+        """
+        @fn setupUi
+        @brief  This function to set up the UI elements for cryptoAlarm application
+        @param  None
+        @return None
+        """
         self.resize(471, 240)
         self.setUpCentralWidget()
         self.setUpPushCrypto() # Crypto button
@@ -27,12 +52,24 @@ class cryptoAlarm(QtWidgets.QMainWindow):
         self.setUpLabelStatus() # Label status
 
     def setUpCentralWidget(self):
+        """
+        @fn setUpCentralWidget
+        @brief  This function to set up UI central widget
+        @param  None
+        @return None
+        """
         self.centralwidget = QtWidgets.QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
         self.setCentralWidget(self.centralwidget)
         self.setWindowTitle("Crypto Alarm")
 
     def setUpPushCrypto(self):
+        """
+        @fn setUpPushCrypto
+        @brief  This function to set up UI for Alarm push button
+        @param  None
+        @return None
+        """
         self.pushCrypto = QtWidgets.QPushButton(self.centralwidget)
         self.pushCrypto.setGeometry(50, 90, 71, 61)
         self.pushCrypto.setObjectName("pushCrypto")
@@ -118,6 +155,7 @@ class cryptoAlarm(QtWidgets.QMainWindow):
 
     def initializeUi(self):
         self.cryptoObj = None
+        self.alarmTriggered = False
 
     def initializeDatabase(self):
         self.cryptoDatabase = {}
@@ -160,7 +198,8 @@ class cryptoAlarm(QtWidgets.QMainWindow):
         self.updateClockLabel()
         self.timerCount = self.timerCount + 1
         # Update price every 1 min defined in PRICE_UPDATE_TIMEOUT
-        if ( self.timerCount % PRICE_UPDATE_TIMEOUT == 0 ):
+        if  ( self.timerCount % PRICE_UPDATE_TIMEOUT == 0 )\
+            and not self.alarmTriggered:
             self.updateCryptoDataBase()
             pass
 
@@ -177,11 +216,19 @@ class cryptoAlarm(QtWidgets.QMainWindow):
                 self.cryptoDatabase['price'][tickerName] = tempCrypto.price
                 self.cryptoDatabase['alarm'][tickerName] = [tempCrypto.price >= self.cryptoDatabase['threshold'][tickerName][0], #  trigger when price >= upper threshold
                                                             tempCrypto.price <= self.cryptoDatabase['threshold'][tickerName][1]] #  trigger when price <= lower threshold
+                if any(self.cryptoDatabase['alarm'][tickerName]):
+                    self.alarmTriggered = True
+
             except Exception as err:
                 self.writeStatus("Error %s" % err, messageType = "ERROR")
-
+        self.doAlarmIfNeeded()
         print("Price updated. %s" % self.cryptoDatabase)
         pass
+
+    def doAlarmIfNeeded(self):
+        if self.alarmTriggered:
+            self.writeStatus("ALERT !!! CRYPTO PRICE EXCEEDS THE LIMIT", "ERROR")
+            winsound.Beep(440, 500)
 
     # UI Event related functions ***************************************************************************************
     def eventFilter(self, source, event):
